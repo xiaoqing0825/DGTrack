@@ -1039,13 +1039,13 @@ class Fast_iTPN(nn.Module):
         return mask
 
     def compute_template_subsapce(self, q_template, subspace_num, k):
-        combined_z = torch.cat(list(q_template), dim=-1)  # 拼接模板数据
-        T_miu = torch.mean(combined_z.squeeze(0), dim=-1)  # 计算均值
+        combined_z = torch.cat(list(q_template), dim=-1)
+        T_miu = torch.mean(combined_z.squeeze(0), dim=-1)
 
-        # SVD 分解 (用torch.linalg.svd代替torch.linalg.svd)
+
         U, S, V = torch.linalg.svd(combined_z.squeeze(0))
-        T_U = U[:, :k]  # 取前3个特征
-        T_sigma = torch.diag(S[:k])  # 构造对角矩阵
+        T_U = U[:, :k]
+        T_sigma = torch.diag(S[:k])
 
         return T_miu, T_U, T_sigma
 
@@ -1058,7 +1058,7 @@ class Fast_iTPN(nn.Module):
             miu_xi = torch.mean(matrix, dim=-1)
             S_miu.append(miu_xi)
 
-            # 使用torch.linalg.svd代替torch.linalg.svd
+
             Ux, Sx, Vx = torch.linalg.svd(matrix)
             U_xi = Ux[:, :k]
             Sx_diag_k = torch.diag(Sx[:k])
@@ -1107,7 +1107,7 @@ class Fast_iTPN(nn.Module):
             miu_xi = torch.mean(matrix, dim=-1)
             S_miu.append(miu_xi)
 
-            # 使用torch.linalg.svd代替torch.linalg.svd
+
             Ux, Sx, Vx = torch.linalg.svd(matrix)
             U_xi = Ux[:, :k]
             Sx_diag_k = torch.diag(Sx[:k])
@@ -1185,7 +1185,7 @@ class Fast_iTPN(nn.Module):
 
         for i in range(B1.shape[0]):
             a = B1[i] - torch.matmul(torch.matmul(S_U[i], S_U[i].T), B1[i])
-            Q, R = torch.linalg.qr(a, mode='reduced')  # 使用torch.qr代替torch.linalg.qr
+            Q, R = torch.linalg.qr(a, mode='reduced')
 
 
             R_upper = torch.cat((r * S_sigma[i], torch.matmul(S_U[i].T, B1[i])), dim=1)
@@ -1415,12 +1415,11 @@ class Fast_iTPN(nn.Module):
 
         if self.q_template.size() != subspace_num:
             z_reshaped = z.view(5, 512, -1)
-            # 对张量进行池化
-            # 处理每个模板并加入队列
+
             for i in range(z_reshaped.shape[0]):
-                # 重塑为 (1, 512, 49)
+
                 z_i = z_reshaped[i].unsqueeze(0)
-                # 可选：池化（如全局最大池化）
+
                 z_pooled = max_pool(z_i.detach())  # (1, 512, 1)
                 self.q_template.enqueue(z_pooled)
 
